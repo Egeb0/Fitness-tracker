@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import argon2 from "argon2";
-import prisma from "../../lib/prisma";
+import prisma from "../../../lib/prisma";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -14,13 +14,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const hashedPassword = await argon2.hash(password);
+    const user = await prisma.user.findUnique({ where: { email } });
 
-    const user = await prisma.user.create({
-      data: { email, password: hashedPassword },
-    });
+    if (!user || !(await argon2.verify(user.password, password))) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    return res.status(201).json({ message: "User registered successfully", userId: user.id });
+    return res.status(200).json({ message: "Login successful", userId: user.id });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }

@@ -1,27 +1,62 @@
+import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import argon2 from "argon2";
-import prisma from "../../../lib/prisma";
+import bcrypt from "bcryptjs"; // Use bcryptjs for hashing passwords
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
+const prisma = new PrismaClient();
 
-  const { email, password } = req.body;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method === "POST") {
+    const { name, email, password, dateOfBirth, gender } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "Missing email or password" });
-  }
+    // Validate input
+    if (!name || !email || !password || !dateOfBirth || !gender) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-  try {
-    const hashedPassword = await argon2.hash(password);
+    try {
+      // Check if the email is already registered
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
 
-    const user = await prisma.user.create({
-      data: { email, password: hashedPassword },
-    });
+      if (existingUser) {
+        return res.status(400).json({ error: "Email already registered." });
+      }
 
-    return res.status(201).json({ message: "User registered successfully", userId: user.id });
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+      // Validate and parse dateOfBirth
+      const parsedDate = Date.parse(dateOfBirth);
+      if (isNaN(parsedDate)) {
+        return res.status(400).json({ error: "Invalid date format." });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Save the user to the database with hashed password
+      const newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword, // Store the hashed password
+          dateOfBirth: new Date(parsedDate),
+          gender,
+        },
+      });
+
+      console.log("New user registered:", newUser);
+
+      // Respond with success
+      res.status(201).json({ message: "Registration successful!" });
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+  } else {
+    // Handle non-POST requests
+    res.setHeader("Allow", ["POST"]);
+    res.status(405).json({ error: `Method ${req.method} not allowed` });
   }
 }

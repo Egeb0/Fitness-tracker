@@ -6,29 +6,29 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleLoginClick = () => {
-    router.push("/login"); // Navigate to the LoginPage
+    router.push("/login");
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-purple-100 p-4">
-      <h1 className="text-5xl font-extrabold text-purple-700 mb-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-500 via-purple-400 to-indigo-300 p-6">
+      <h1 className="text-6xl font-extrabold text-purple-700 mb-6 drop-shadow-lg animate-fadeIn">
         Welcome to Your Fitness Tracker!
       </h1>
-      <p className="text-lg text-indigo-600 italic font-medium mb-6">
-        Track your <span className="text-indigo-800 font-bold">workouts</span>,{" "}
-        <span className="text-indigo-800 font-bold">meals</span>, and{" "}
-        <span className="text-indigo-800 font-bold">progress</span>—all in one
-        place.
+      <p className="text-xl text-indigo-600 italic font-medium mb-8 max-w-2xl text-center leading-relaxed">
+        Track your <span className="font-bold text-purple-900">workouts</span>,{" "}
+        <span className="font-bold text-purple-900">meals</span>, and{" "}
+        <span className="font-bold text-purple-900">progress</span>—all in one
+        place. Your fitness journey starts here!
       </p>
-      <div className="text-center">
+      <div className="flex gap-4">
         <button
-          className="px-6 py-3 bg-purple-700 text-white rounded-lg hover:bg-purple-800 shadow-lg transition mx-2"
-          onClick={() => router.push("/get-started")} // Example route for "Get Started"
+          className="px-8 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 shadow-xl hover:shadow-2xl transition-transform transform hover:scale-105"
+          onClick={() => router.push("/get-started")}
         >
           Get Started
         </button>
         <button
-          className="px-6 py-3 bg-gray-200 text-purple-700 rounded-lg hover:bg-gray-300 shadow-lg transition mx-2"
+          className="px-8 py-3 bg-gray-100 text-purple-700 rounded-lg hover:bg-gray-200 shadow-xl hover:shadow-2xl transition-transform transform hover:scale-105"
           onClick={handleLoginClick}
         >
           Login
